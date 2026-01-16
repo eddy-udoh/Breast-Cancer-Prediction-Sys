@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biopsy Data Analysis</title>
+    <style>
+        :root {
+            --primary-purple: #4a148c;
+            --light-purple: #7c43bd;
+            --dark-purple: #12005e;
+            --bg-color: #f3e5f5;
+            --text-main: #212121;
+            --text-white: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 40px 20px; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .container { 
+            background: white; 
+            padding: 40px; 
+            max-width: 480px; 
+            margin: auto; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-top: 8px solid var(--primary-purple);
+        }
+
+        h2 { 
+            text-align: left; 
+            color: var(--dark-purple); 
+            margin-top: 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            font-size: 1.4em;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: var(--primary-purple);
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--light-purple);
+        }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--primary-purple); 
+            color: var(--text-white); 
+            border: none; 
+            border-radius: 6px;
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover { 
+            background: var(--dark-purple); 
+        }
+
+        .result { 
+            text-align: center; 
+            margin-top: 30px; 
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-weight: 700; 
+            font-size: 1.3em; 
+            color: var(--dark-purple);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Diagnostic Assessment</h2>
+        <p>Quantitative analysis of biopsy specimen metrics.</p>
+        
+        <form method="POST">
+            <label>Mean Radius</label>
+            <input type="number" step="0.01" name="radius" placeholder="14.2" required>
+
+            <label>Mean Texture</label>
+            <input type="number" step="0.01" name="texture" placeholder="20.5" required>
+
+            <label>Mean Perimeter</label>
+            <input type="number" step="0.01" name="perimeter" placeholder="90.0" required>
+
+            <label>Mean Area</label>
+            <input type="number" step="0.1" name="area" placeholder="600.0" required>
+
+            <label>Mean Smoothness</label>
+            <input type="number" step="0.0001" name="smoothness" placeholder="0.09" required>
+
+            <button type="submit">Run Analysis</button>
+        </form>
+
+        {% if prediction_text %}
+        <div class="result">{{ prediction_text }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
