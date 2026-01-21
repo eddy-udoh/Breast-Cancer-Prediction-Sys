@@ -5,30 +5,51 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Load model and scaler from the /model/ folder
-# Using joblib as it is the standard for .pkl files in Scikit-Learn
-try:
-    model_path = os.path.join('model', 'breast_cancer_model.pkl')
-    # If you saved both model and scaler in one file:
-    data_pack = joblib.load(model_path)
-    
-    # Check if the pkl contains a dictionary or just the model
-    if isinstance(data_pack, dict):
-        model = data_pack['model']
-        scaler = data_pack['scaler']
-    else:
-        model = data_pack
-        # If scaler is separate, load it here:
-        scaler = joblib.load(os.path.join('model', 'cancer_scaler.pkl'))
-except Exception as e:
-    print(f"Error loading model: {e}")
+# --- GLOBAL LOADING LOGIC ---
+# We define these as None first so the app doesn't crash immediately if files are missing
+model = None
+scaler = None
+
+# Update filenames to match exactly what you have in your /model/ folder
+model_filename = 'breast_cancer_model.pkl' 
+
+def load_saved_objects():
+    global model, scaler
+    try:
+        # Step 1: Locate the file inside the /model/ directory
+        model_path = os.path.join(os.getcwd(), 'model', model_filename)
+        
+        # Step 2: Load the pickle file
+        data_pack = joblib.load(model_path)
+        
+        # Step 3: Extract model and scaler 
+        # (Assuming they were saved together in a dictionary)
+        if isinstance(data_pack, dict):
+            model = data_pack.get('model')
+            scaler = data_pack.get('scaler')
+        else:
+            model = data_pack
+            # If scaler is in a different file, load it here:
+            scaler_path = os.path.join(os.getcwd(), 'model', 'cancer_scaler.pkl')
+            scaler = joblib.load(scaler_path)
+            
+        print("Model and Scaler loaded successfully!")
+    except Exception as e:
+        print(f"CRITICAL ERROR: Could not load model or scaler. {e}")
+
+# Run the loader
+load_saved_objects()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     prediction_text = ""
     if request.method == 'POST':
+        # Safety check: if scaler didn't load, we can't predict
+        if model is None or scaler is None:
+            return render_template('index.html', prediction_text="Error: Model files not loaded on server.")
+
         try:
-            # 1. Get inputs from the HTML form
+            # Get values from your HTML form
             input_data = [
                 float(request.form['radius']),
                 float(request.form['texture']),
@@ -37,25 +58,16 @@ def index():
                 float(request.form['smoothness'])
             ]
             
-            # 2. Convert to numpy array and scale
+            # Scale and Predict
             features = np.array([input_data])
             features_scaled = scaler.transform(features)
-            
-            # 3. Predict
             prediction = model.predict(features_scaled)
             
-            # 4. Handle prediction result (assuming 0=Malignant, 1=Benign)
-            # If using Neural Network, prediction might be a probability (e.g., 0.8)
-            res_val = prediction[0]
-            if hasattr(res_val, "__len__"): res_val = res_val[0] # Handle NN output arrays
-            
-            if res_val < 0.5:
-                prediction_text = "MALIGNANT"
-            else:
-                prediction_text = "BENIGN"
+            # Logic: 0 = Malignant, 1 = Benign
+            prediction_text = "BENIGN" if prediction[0] == 1 else "MALIGNANT"
 
         except Exception as e:
-            prediction_text = f"Error: {e}"
+            prediction_text = f"Input Error: {e}"
 
     return render_template('index.html', prediction_text=prediction_text)
 
