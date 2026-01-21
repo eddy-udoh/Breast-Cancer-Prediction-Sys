@@ -3,4 +3,4 @@ Matric Number: 22CG031868
 Machine Learning Algorithm Used: Logistic Regression
 Model persistence method used: Joblib (.pkl)
 Live URL of the hosted application: https://breast-cancer-prediction-sys.onrender.com/
-GitHub repository link: [Your GitHub Link Here]
+GitHub repository link: https://github.com/eddy-udoh/Breast-Cancer-Prediction-Sys
